@@ -1,5 +1,7 @@
 package com.example.plugins
 
+import com.example.model.taskAsTable
+import com.example.model.tasks
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
@@ -10,13 +12,7 @@ fun Application.configureRouting() {
         get("/tasks") {
             call.respondText(
                 contentType = ContentType.parse("text/html"),
-                text = """
-                    <h3> TODO: </h3>
-                    <ol>
-                    <li>A table of all the tasks</li>
-                    <li>A form to submit new tasks</li>
-                </ol>
-                """.trimIndent()
+                text = tasks.taskAsTable()
             )
         }
     }
