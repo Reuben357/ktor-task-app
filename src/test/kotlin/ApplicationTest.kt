@@ -10,6 +10,36 @@ import kotlin.test.assertEquals
 class ApplicationTest {
 
     @Test
+    fun newTasksCanBeAdded() = testApplication {
+        application {
+            module()
+        }
+
+        val response1 = client.post("/tasks"){
+            header(
+                HttpHeaders.ContentType,
+                ContentType.Application.FormUrlEncoded.toString()
+            )
+            setBody(
+                listOf(
+                    "name" to "Swimming",
+                    "description" to "Go to the beach",
+                    "priority" to "Low",
+                ).formUrlEncode()
+            )
+        }
+
+        assertEquals(HttpStatusCode.NoContent, response1.status)
+
+        val response2 = client.get("/tasks")
+        assertEquals(HttpStatusCode.OK, response2.status)
+
+        val body = response2.bodyAsText()
+        assertContains(body, "Swimming")
+        assertContains(body, "Go to the beach")
+    }
+
+    @Test
     fun getsAllTasks() = testApplication {
         application {
             module()
@@ -25,7 +55,7 @@ class ApplicationTest {
             module()
         }
 
-        val response = client.get("/tasks/byPriority/Medium")
+        val response = client.get("/byPriority/Medium")
         val body = response.bodyAsText()
 
         assertEquals(HttpStatusCode.OK, response.status)
@@ -39,7 +69,7 @@ class ApplicationTest {
             module()
         }
 
-        val response = client.get("/tasks/byPriority/Invalid")
+        val response = client.get("/byPriority/Invalid")
         assertEquals(HttpStatusCode.BadRequest, response.status)
     }
 
@@ -49,7 +79,7 @@ class ApplicationTest {
             module()
         }
 
-        val response = client.get("/tasks/byPriority/Vital")
+        val response = client.get("/byPriority/Vital")
         assertEquals(HttpStatusCode.NotFound, response.status)
     }
 }
